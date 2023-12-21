@@ -20,8 +20,6 @@ sidebar <- dashboardSidebar(
 # Body
 body <- dashboardBody(
   fluidRow(
-    # A static valueBox
-    valueBox(10 * 2, "New Orders", icon = icon("credit-card")),
     # Dynamic valueBoxes
     valueBoxOutput("progressBox"),
     valueBoxOutput("approvalBox")),
@@ -30,24 +28,25 @@ body <- dashboardBody(
     # First tab content
     tabItem(tabName = "dashboard",
             fluidRow(
-              box(title = "Histogram", background = "aqua", solidHeader = TRUE,
-                  collapsible = TRUE, plotOutput("plot1", height = 600)),
               
-              box(title = "Inputs", background = "aqua", solidHeader = TRUE, collapsible = TRUE,
-                  "Box content here", br(), "More box content",
-                  sliderInput("slider", "Slider input:", 1, 100, 50),
-                  textInput("text", "Text input:")
+              box(title = "Inputs", background = "aqua", solidHeader = T, collapsible = T,
+                  selectInput(inputId = "TRTMT", label = "Select Treatment Group:", choices = c(0, 1), multiple = FALSE),
+                  selectInput(inputId = "var",
+                              label = "Select a variable:",
+                              choices = names(dig.df)[c(3, 9, 24, 25)],
+                              selected = names(dig.df)[3])),
+              
+              box(title = "Histogram", background = "aqua", solidHeader = TRUE,
+                  collapsible = TRUE, plotOutput("plot1", height = 600))
               )
-            )
-    ),
-    
+            ),
+      
     # Second tab content
     tabItem(tabName = "widgets",
             h2("Widgets tab content")
     )
   )
 )
-
 
 ui <- dashboardPage(skin = "red", header, sidebar, body)
 
@@ -73,7 +72,7 @@ server <- function(input, output) {
   histdata <- rnorm(500)
   
   output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
+    data <- histdata[seq_len(50)]
     hist(data)
   })
 }

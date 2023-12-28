@@ -1,24 +1,33 @@
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
-dig.df = read_csv("DIG.csv", col_select = c("ID", "TRTMT", "AGE", "RACE", "SEX", "BMI", "HEARTRTE", "DIABP", "SYSBP", "PREVMI", "ANGINA", "DIABETES", "HYPERTEN", "CVD", "WHF", "DIG", "MI", "STRK", "HOSP", "DEATH"))
-dig.df$TRTMT = as.factor(dig.df$TRTMT)
-dig.df$RACE = as.factor(dig.df$RACE)
-dig.df$SEX = as.factor(dig.df$SEX)
-# To do: tidy the data for a more readable format - later
+dig.df = read_csv("DIG.csv", col_select = c("ID", "TRTMT", "AGE", "RACE", "SEX", "BMI", "HEARTRTE", "DIABP", "SYSBP", "PREVMI", 
+                                            "ANGINA", "DIABETES", "HYPERTEN", "CVD", "WHF", "DIG", "MI", "STRK", "HOSP", "DEATH"))
 
-# Continuous variables:
-## AGE, BMI, HEARTRTE (?), DIABP, SYSBP
+# Convert selected character columns to factors
+factor_column = names(dig.df[c(2, 4, 5, 10:20)])
+dig.df = dig.df %>%
+  mutate_if(names(.) %in% factor_column, as.factor)
 
-# Categorical variables:
-## TRTMT, RACE, SEX, ANGINA
+names(dig.df) = c("ID", "Treatment", "Age", "Race", "Sex", "BMI", "Heartrate", "Diastolic_BP", "Systolic_BP", "Previous_MI",
+                  "Angina", "Had_Diabetes", "Had_Hypertension", "Hospitalisation_CVD", "Hospitalisation_WHF",
+                  "Hospitalisation_DIG_Toxicity", "Hospitalisation_MI", "Hospitalisation_Stroke", "Hospitalisation", "Death")
 
-# History of... variables (binary variables):
-## PREVMI, DIABETES, HYPERTEN
-
-# Hospitalisation (binary variables):
-## CVD, WHF, DIG, MI, UANG (unstable angina), STRK (stroke), RINF (respiratory infection), HOSP, DEATH
-
+dig.df = dig.df %>%
+  mutate(Treatment = factor(ifelse(Treatment == 1, "Treatment", "Placebo")),
+         Sex = factor(ifelse(Sex == 1, "Male", "Female")),
+         Race = factor(ifelse(Race == 1, "White", "Non-White")),
+         Previous_MI = factor(ifelse(Previous_MI == 1, "Yes", "No")),
+         Angina = factor(ifelse(Angina == 1, "Yes", "No")),
+         Had_Diabetes = factor(ifelse(Had_Diabetes == 1, "Yes", "No")),
+         Had_Hypertension = factor(ifelse(Had_Hypertension == 1, "Yes", "No")),
+         Hospitalisation_CVD = factor(ifelse(Hospitalisation_CVD == 1, "Yes", "No")),
+         Hospitalisation_WHF = factor(ifelse(Hospitalisation_WHF == 1, "Yes", "No")),
+         Hospitalisation_DIG_Toxicity = factor(ifelse(Hospitalisation_DIG_Toxicity == 1, "Yes", "No")),
+         Hospitalisation_MI = factor(ifelse(Hospitalisation_MI == 1, "Yes", "No")),
+         Hospitalisation_Stroke = factor(ifelse(Hospitalisation_Stroke == 1, "Yes", "No")),
+         Hospitalisation = factor(ifelse(Hospitalisation == 1, "Yes", "No")),
+         Death = factor(ifelse(Death == 1, "Yes", "No")))
 
 ## UI
 # Header

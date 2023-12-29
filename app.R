@@ -61,14 +61,22 @@ body <- dashboardBody(
               
               box(title = "Inputs", background = "purple", solidHeader = T, collapsible = T,
                   selectInput("box_var", "Select continuous variable:", choices = names(dig.df)[c(3, 6, 7, 8, 9)]),
-                  selectInput("binary_var", "Group by:", choices = names(dig.df)[c(2, 4, 5, 10:20)]))),
+                  selectInput("binary_var", "Group by:", choices = names(dig.df)[c(2, 4, 5, 10:20)]),
+                  sliderInput("bins",
+                              "Number of bins for histogram:",
+                              min = 1,
+                              max = 30,
+                              value = 10))),
             
             fluidRow(
               box(title = "Boxplot", background = "purple", solidHeader = TRUE,
                   collapsible = TRUE, plotOutput("plot1", height = 600)),
               
               box(title = "Density Plot", background = "purple", solidHeader = TRUE,
-                  collapsible = TRUE, plotOutput("plot3", height = 600))
+                  collapsible = TRUE, plotOutput("plot3", height = 600)),
+              
+              box(title = "Histogram", background = "purple", solidHeader = TRUE,
+                  collapsible = TRUE, plotOutput("plot4", height = 600))
             )
     ),
     
@@ -204,6 +212,16 @@ server <- function(input, output) {
       facet_wrap(~ get(input$binary_var)) +
       labs(title = paste("Density Plot of", input$box_var, "grouped by", input$binary_var),
            x = input$box_var, y = "Density") +
+      theme_minimal() +
+      scale_fill_manual(values = c("orange", "cornflowerblue"))
+  })
+  
+  output$plot4 <- renderPlot({
+    ggplot(dig.df, aes_string(x = input$box_var, fill = input$binary_var)) +
+      geom_histogram(alpha = 0.9, bins = input$bins) +
+      facet_wrap(~ get(input$binary_var)) +
+      labs(title = paste("Histogram of", input$box_var, "grouped by", input$binary_var),
+           x = input$box_var, y = "Count") +
       theme_minimal() +
       scale_fill_manual(values = c("orange", "cornflowerblue"))
   })
